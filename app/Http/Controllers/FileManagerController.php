@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\FileManager;
 use Illuminate\Http\Request;
-
+use Auth;
 class FileManagerController extends Controller
 {
     /**
@@ -14,7 +14,8 @@ class FileManagerController extends Controller
      */
     public function index()
     {
-        //
+        $files = FileManager::get();
+        return view('filemanager.index', ['files' => $files]);
     }
 
     /**
@@ -35,7 +36,26 @@ class FileManagerController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        
+         $file = new FileManager;
+         $fileOriginalName = $request->file->getClientOriginalName();
+         $fileExt = $request->file->getClientMimeType();
+         $path = $request->file('file')->store('files');
+         $path_url = url('storage/'.$path);
+
+         $file->user_id = Auth::id();
+         $file->file_name = $fileOriginalName;
+         $file->file_ext = $fileExt;
+         $file->file_path = $path_url;
+         $file->save();
+         return redirect()->route('filemanager.index');
+         $files = FileManager::get();
+         return view('filemanager.index', ['files' => $files]);
+         
+         
+         
+         
+
     }
 
     /**
@@ -81,5 +101,28 @@ class FileManagerController extends Controller
     public function destroy(FileManager $fileManager)
     {
         //
+    }
+    
+    public function all()
+    {
+        
+        $files = FileManager::get();
+        return view('filemanager.index', ['files' => $files]);
+        
+    }
+    
+    public function documents()
+    {
+        
+    }
+    
+    public function audio()
+    {
+        
+    }
+    
+    public function images()
+    {
+        
     }
 }

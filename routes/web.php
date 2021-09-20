@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TaskController;
+use App\Http\Controllers\FileManagerController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -33,12 +34,15 @@ Route::middleware('auth')->name('task.')->group(function (){
     Route::post('/task/{task}/change-task',[TaskController::class, 'update']);
 });
 
-// Routes::middleware('auth')->name('filemanager.')-group(function(){
-// 
-// });
 
-Route::get('/filemanager/index', function(){
-    return view('filemanager.index');
+Route::middleware('auth')->name('filemanager.')->group(function(){
+    Route::post('/filemanager/index',[FileManagerController::class, 'store'])->name('store');
+    Route::get('/filemanager/index', [FileManagerController::class, 'index'])->name('index');
+    Route::get('filemanager/all', [FileManagerController::class, 'all'])->name('all');    
+    Route::get('filemanager/documents/', [FileManagerController::class, 'documents'])->name('documents');    
+    Route::get('filemanager/audio', [FileManagerController::class, 'audio'])->name('audio');    
+    Route::get('filemanager/images', [FileManagerController::class, 'images'])->name('images');    
+
 });
 
 

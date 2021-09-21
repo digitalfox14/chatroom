@@ -1,0 +1,228 @@
+upload page in php
+
+@extends ('layouts.app')
+@section('content')
+
+
+<div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-9">
+        <h2>File Manager</h2>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="#">Home</a>
+            </li>
+            <li class="breadcrumb-item">
+                App Views
+            </li>
+            <li class="breadcrumb-item active">
+                <strong>File Manager</strong>
+            </li>
+        </ol>
+    </div>
+</div>
+<div class="wrapper wrapper-content">
+    <div class="row">
+        <div class="col-lg-3">
+            <div class="ibox ">
+                <div class="ibox-content">
+                    <div class="file-manager">
+                        <h5>Show:</h5>
+                        <a href="{{route('filemanager.all')}}" class="file-control active">All</a>
+                        <a href="{{route('filemanager.documents')}}" class="file-control">Documents</a>
+                        <a href="{{route('filemanager.audio')}}" class="file-control">Audio</a>
+                        <a href="{{route('filemanager.images')}}" class="file-control">Images</a>
+                        <div class="hr-line-dashed"></div>
+                        <form action="{{route('filemanager.store')}}" method="post" enctype="multipart/form-data">
+                            @csrf
+                            <input type="file" name="file" id="uploadBox" class="btn btn-primary btn-block">
+                            <button type="submit" id="uploadBtn" class="btn btn-primary btn-block" name="button">Upload</button>
+                        </form>
+                        <div class="hr-line-dashed"></div>
+                        <div class="clearfix"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-9 animated fadeInRight">
+            <div class="row">
+                <div class="col-lg-12">
+                    @foreach (($files ?? $data) as $file)
+                    <div class="file-box">
+                        <div class="file">
+                            <a href="{{$file->file_path}}">
+                                <span class="corner"></span>
+                                <div class="image">
+                                    @if ($file->file_ext == 'application/pdf')<center>
+                                    <img alt="pdf" class="img-fluid"  height="50%" width="40%"  src="{{asset('assets/img/pdf.png')}}"></center>
+                                    @elseif ($file->file_ext == 'audio/wav')<center>
+                                    <img alt="Audio" class="img-fluid" height="50%" width="50%" src="{{asset('assets/img/audio.jpeg')}}"> </center>
+                                    @elseif ($file->file_ext == 'application/vnd.openxmlformats-officedocument.wordprocessingml.document')<center>
+                                    <img alt="Audio" class="img-fluid" height="50%" width="50%" src="{{asset('assets/img/word.jpg')}}"> </center>
+                                    @elseif ($file->file_ext == 'application/zip')<center>
+                                    <img alt="Audio" class="img-fluid" height="60%" width="60%" src="{{asset('assets/img/zip.png')}}"> </center>
+                                    @elseif ($file->file_ext == 'image/jpeg' || 'image/jpg' || 'image/png')<center>
+                                    <img alt="image" class="img-fluid"  src="{{$file->file_path}}"></center>
+                                    @endif
+                                </div>
+                                <div class="file-name" >
+                                    {{$file->file_name}}
+                                    <br>
+                                    <small>{{$file->updated_at}}</small>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                    @endforeach    
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@endsection       
+
+
++************************************************************************
+
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\FileManager;
+use Illuminate\Http\Request;
+use Auth;
+class FileManagerController extends Controller
+{
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function index()
+    {
+        $files = FileManager::get();
+        return view('filemanager.index', ['files' => $files]);
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function create()
+    {
+        //
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function store(Request $request)
+    {
+        
+         $file = new FileManager;
+         $fileOriginalName = $request->file->getClientOriginalName();
+         $fileExt = $request->file->getClientMimeType();
+         $path = $request->file('file')->store('files');
+         $path_url = url('storage/'.$path);
+
+         $file->user_id = Auth::id();
+         $file->file_name = $fileOriginalName;
+         $file->file_ext = $fileExt;
+         $file->file_path = $path_url;
+         $file->save();
+         return redirect()->route('filemanager.index');
+         $files = FileManager::get();
+         return view('filemanager.index', ['files' => $files]);
+         
+         
+         
+         
+
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param  \App\Models\FileManager  $fileManager
+     * @return \Illuminate\Http\Response
+     */
+    public function show(FileManager $fileManager)
+    {
+        //
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     *
+     * @param  \App\Models\FileManager  $fileManager
+     * @return \Illuminate\Http\Response
+     */
+    public function edit(FileManager $fileManager)
+    {
+        //
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\FileManager  $fileManager
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request, FileManager $fileManager)
+    {
+        //
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  \App\Models\FileManager  $fileManager
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy(FileManager $fileManager)
+    {
+        //
+    }
+    
+    public function all()
+    {
+        
+         $files = FileManager::get();
+         return view('filemanager.index', ['files' => $files]);
+        
+    }
+    
+    public function documents()
+    {
+        $pdf = 'application/pdf';
+        $doc ='application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+        $zip = 'application/zip';
+        $data = FileManager::where('file_ext','=', $pdf)->orwhere('file_ext','=', $doc)->orwhere('file_ext','=', $zip)->get();
+    
+        return view('filemanager.index', ['data' => $data]);
+        
+        //return view('filemanager.index', ['files' => $files]);
+    }
+    
+    public function audio()
+    {
+        $wav = 'audio/wav';
+        $mp3 = 'audio/mp3';
+        $data = FileManager::where('file_ext','=', $wav)->orwhere('file_ext','=', $mp3)->get();
+        return view('filemanager.index', ['data' => $data ]);
+    }
+    
+    public function images()
+    {
+        $jpeg = 'image/jpeg';
+        $png = 'image/png';
+        $data = FileManager::where('file_ext','=', $jpeg)->orwhere('file_ext','=', $png)->get();
+        return view('filemanager.index', ['data' => $data ]);
+    }
+}
+         

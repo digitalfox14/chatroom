@@ -43,6 +43,7 @@ Route::middleware('auth')->name('filemanager.')->prefix('/filemanager')->group(f
     Route::get('/audio', [FileManagerController::class, 'audio'])->name('audio');    
     Route::get('/images', [FileManagerController::class, 'images'])->name('images');    
     
+    
 });
 
 

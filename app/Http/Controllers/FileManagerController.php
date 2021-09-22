@@ -15,8 +15,7 @@ class FileManagerController extends Controller
     public function index()
     {
         $files = FileManager::get();
-        return view('filemanager.index', ['files' => $files]);
-         
+        return view('filemanager.index', ['files' => $files,]);
     }
 
     /**
@@ -37,60 +36,17 @@ class FileManagerController extends Controller
      */
     public function store(Request $request)
     {
-        //echo "<pre>"; print_r($request->file); die;
-          $file = new FileManager;
-          $fileOriginalName = $request->file->getClientOriginalName();
-          $fileExt = $request->file->getClientMimeType();
-          $path = $request->file('file')->store('files');
-          $path_url = url('storage/'.$path);
-          
-          $file->user_id = Auth::id();
-          $file->file_name = $fileOriginalName;
-          $file->file_ext = $fileExt;
-          $file->file_path = $path_url;
-          $file->save();
-          return redirect()->route('filemanager.index');
-          $files = FileManager::get();
-          return view('filemanager.index', ['files' => $files]);
-          
-         
-         
-         
-
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\FileManager  $fileManager
-     * @return \Illuminate\Http\Response
-     */
-    public function show(FileManager $fileManager)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\FileManager  $fileManager
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(FileManager $fileManager)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\FileManager  $fileManager
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, FileManager $fileManager)
-    {
-        //
+        $file = new FileManager;
+        $fileOriginalName = $request->file->getClientOriginalName();
+        $fileExt = $request->file->getClientMimeType();
+        $path = $request->file('file')->store('files');
+        $path_url = url('storage/'.$path);
+        $file->user_id = Auth::id();
+        $file->file_name = $fileOriginalName;
+        $file->file_ext = $fileExt;
+        $file->file_path = $path_url;
+        $file->save();
+        return response()->json($file);
     }
 
     /**
@@ -104,40 +60,62 @@ class FileManagerController extends Controller
         //
     }
     
-    // public function all()
-    // {
-    // 
-    //      $files = FileManager::get();
-    //      return view('filemanager.index', ['files' => $files]);
-    // 
-    // }
-    // 
-    // public function documents()
-    // {
-    //     $pdf = 'application/pdf';
-    //     $doc ='application/vnd.openxmlformats-officedocument.wordprocessingml.document';
-    //     $zip = 'application/zip';
-    //     $data = FileManager::where('file_ext','=', $pdf)->orwhere('file_ext','=', $doc)->orwhere('file_ext','=', $zip)->get();
-    // 
-    //     return view('filemanager.index', ['data' => $data]);
-    // 
-    //     //return view('filemanager.index', ['files' => $files]);
-    // }
-    // 
-    // public function audio()
-    // {
-    //     $wav = 'audio/wav';
-    //     $mp3 = 'audio/mp3';
-    //     $data = FileManager::where('file_ext','=', $wav)->orwhere('file_ext','=', $mp3)->get();
-    //     return view('filemanager.index', ['data' => $data ]);
-    // }
-    // 
-    // public function images()
-    // {
-    //     $jpeg = 'image/jpeg';
-    //     $png = 'image/png';
-    //     $data = FileManager::where('file_ext','=', $jpeg)->orwhere('file_ext','=', $png)->get();
-    //     return view('filemanager.index', ['data' => $data ]);
-    // }
+    public function all()
+    {
+         $userId = Auth::id();
+         $files = FileManager::where('user_id',$userId)->get();
+         return view('filemanager.index', ['files' => $files]);
+         return redirect()->route('filemanager.index');
+    }
+    
+    public function documents()
+    {
+        $userId = Auth::id();
+        $pdf = 'application/pdf';
+        $doc ='application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+        $zip = 'application/zip';
+        $data = FileManager::where(function($query)use($userId){
+            $query->where('user_id', $userId);
+        })->where(function($query)use($pdf,$doc,$zip){
+            $query->where('file_ext',$pdf)
+            ->orwhere('file_ext',$doc)
+            ->orwhere('file_ext',$zip);
+        })->get();
+        
+        return view('filemanager.index', ['data' => $data]);
+        return redirect()->route('filemanager.index');
+    }
+    
+    public function audio()
+    {
+        $userId = Auth::id();
+        $wav = 'audio/wav';
+        $mp3 = 'audio/mp3';
+        $data = FileManager::where(function($query)use($userId){
+            $query->where('user_id', $userId);
+        })->where(function($query)use($wav,$mp3){
+            $query->where('file_ext',$wav)
+            ->orwhere('file_ext',$mp3);
+        })->get();
+        
+        return view('filemanager.index', ['data' => $data ]);
+        return redirect()->route('filemanager.index');
+    }
+    
+    public function images()
+    {
+        $userId = Auth::id();
+        $jpeg = 'image/jpeg';
+        $png = 'image/png';
+        $data = FileManager::where(function($query)use($userId){
+            $query->where('user_id', $userId);
+        })->where(function($query)use($jpeg,$png){
+            $query->where('file_ext',$jpeg)
+            ->orwhere('file_ext',$png);
+        })->get();
+        
+        return view('filemanager.index', ['data' => $data ]);    
+        return redirect()->route('filemanager.index');
+    }
     
 }

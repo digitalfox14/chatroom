@@ -35,6 +35,7 @@
                             <input type="file" name="file" id="file" class="btn btn-primary btn-block">
                             <!-- <button type="button" id="uploadBtn" class="btn btn-primary btn-block" name="button">Upload</button> -->
                         </form>
+                        
                         <div class="hr-line-dashed"></div>
                         <div class="clearfix"></div>
                     </div>
@@ -43,20 +44,17 @@
         </div>
         <div class="col-lg-9 animated fadeInRight">
             <div class="row">
-                <div class="col-lg-12">
-                    @foreach ($files as $file)
+                <div class="col-lg-12" id="div-file-box">
+                    @foreach (($files ?? $data) as $file)
                         
-                    <div class="file-box">
+                    <div class="file-box" id="{{$file->id}}">
                         <div class="file">
                             <a href="{{$file->file_path}}">
                                 <span class="corner"></span>
                                 <div class="image">
-                                    
-                                    <img alt="pdf" class="img-fluid"  height="50%" width="40%"  src="{{$file->file_path}}"></center>
-                                    
+                                        <center><img  class="img-fluid" height="{{$file->height}}" width="{{$file->width}}"     src="{{$file->thumbnail}}"></center>
                                 </div>
                                 <div class="file-name" >
-                    
                                     <br>
                                     <small>
                                         {{$file->file_name}}
@@ -66,7 +64,6 @@
                         </div>
                     </div>
                     @endforeach
-                    
                 </div>
             </div>
         </div>
@@ -77,19 +74,39 @@
 @section('extra-scripts')
 <script>
 
+
     $('#file').change(function() {
         var formData =  new FormData(document.getElementById('file-form'));
-
         $.ajax({
-               type: 'POST',
-               url: '/filemanager/store',
-               enctype: 'multipart/form-data',
-               data: formData,
-               processData: false,
-               contentType: false,
-
-           });
-});
+           type: 'POST',
+           url: '/filemanager/store',
+           enctype: 'multipart/form-data',
+           data: formData,
+           processData: false,
+           contentType: false,
+           success: function (resp) {
+               console.log(resp.thumbnail);
+           
+           $('#'+"{{$file->id??''}}").append(`<div class="file-box" id="{{$file->id??''}}">
+               <div class="file">
+                   <a href="`+resp.file_path+`">
+                       <span class="corner"></span>
+                       <div class="image">
+                            <center><img class="img-fluid" height="`+resp.height+`" width="`+resp.width+`"  src="`+resp.thumbnail+`"></center>
+                       </div>
+                       <div class="file-name" >
+                           <br>
+                           <small>
+                              `+resp.file_name+`
+                           </small>
+                       </div>
+                   </a>
+               </div>
+           </div>`);
+       },
+   });
+});   
+    
 
 
 </script>

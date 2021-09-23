@@ -16,19 +16,22 @@ class FileManager extends Model
         $ext = $this->getRawOriginal('file_ext');
         $width = '';
 
-        if (in_array($ext, ['image/png','image/jpg','image/jpeg', 'image/svg+xml'])) {
+        if (in_array($ext, ['png','jpg','jpeg', 'svg+xml'])) {
             $width = "100%";
             
-        } elseif (in_array($ext, ['audio/wav'])) {
+        } elseif (in_array($ext, ['wav'])) {
             $width = "50%";
             
-        }elseif (in_array($ext, ['application/pdf'])) {
+        }elseif (in_array($ext, ['pdf'])) {
             
             $width = "40%";
             
-        }elseif (in_array($ext, ['application/vnd.openxmlformats-officedocument.wordprocessingml.document'])) {
+        }elseif (in_array($ext, ['vnd.openxmlformats-officedocument.wordprocessingml.document'])) {
             $width = "50%";
             
+        }elseif (in_array($ext, ['zip'])) {
+            
+            $width = "60%";
         }
         return $width;
     }
@@ -38,17 +41,21 @@ class FileManager extends Model
         $ext = $this->getRawOriginal('file_ext');
         $thumbnail = '';
 
-        if (in_array($ext, ['image/png','image/jpg','image/jpeg', 'image/svg+xml'])) {
+        if (in_array($ext, ['png','jpg','jpeg', 'svg+xml'])) {
             $thumbnail = $this->file_path;
-        } elseif (in_array($ext, ['audio/wav'])) {
-            $thumbnail = $this->file_path;
+        } elseif (in_array($ext, ['wav'])) {
+            
             $thumbnail = asset('assets/img/audio.jpeg');
-        }elseif (in_array($ext, ['application/pdf'])) {
+            
+        }elseif (in_array($ext, ['pdf'])) {
             $thumbnail = asset('assets/img/pdf.png');
             
-        }elseif (in_array($ext, ['application/vnd.openxmlformats-officedocument.wordprocessingml.document'])) {
+        }elseif (in_array($ext, ['vnd.openxmlformats-officedocument.wordprocessingml.document'])) {
             $thumbnail = asset('assets/img/word.jpg');
-        }
+            
+        }elseif (in_array($ext, ['zip'])) {
+            $thumbnail = asset('assets/img/zip.png');
+        }    
         return $thumbnail;
     }
     

@@ -38,10 +38,7 @@ Route::middleware('auth')->name('task.')->group(function (){
 Route::middleware('auth')->name('filemanager.')->prefix('/filemanager')->group(function(){
     Route::post('/store',[FileManagerController::class, 'store'])->name('store');
     Route::get('/index', [FileManagerController::class, 'index'])->name('index');
-    Route::get('/all', [FileManagerController::class, 'all'])->name('all');    
-    Route::get('/documents', [FileManagerController::class, 'documents'])->name('documents');    
-    Route::get('/audio', [FileManagerController::class, 'audio'])->name('audio');    
-    Route::get('/images', [FileManagerController::class, 'images'])->name('images');    
+    Route::get('/files', [FileManagerController::class, 'files'])->name('files');    
     
     
 });

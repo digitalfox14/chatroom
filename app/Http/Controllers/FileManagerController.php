@@ -14,18 +14,8 @@ class FileManagerController extends Controller
      */
     public function index()
     {
-        $files = FileManager::get();
-        return view('filemanager.index', ['files' => $files,]);
-    }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
+        return view('filemanager.index');
     }
 
     /**
@@ -36,9 +26,14 @@ class FileManagerController extends Controller
      */
     public function store(Request $request)
     {
+        
+         
+         $fileOriginalName = $request->file->getClientOriginalName();
+         $fileextension = pathinfo($fileOriginalName);
+         $fileExt = $fileextension['extension'];
+
         $file = new FileManager;
-        $fileOriginalName = $request->file->getClientOriginalName();
-        $fileExt = $request->file->getClientMimeType();
+        $fileOriginalName = $request->file->getClientOriginalName();    
         $path = $request->file('file')->store('files');
         $path_url = url('storage/'.$path);
         $file->user_id = Auth::id();
@@ -46,6 +41,7 @@ class FileManagerController extends Controller
         $file->file_ext = $fileExt;
         $file->file_path = $path_url;
         $file->save();
+
         return response()->json($file);
     }
 
@@ -59,63 +55,28 @@ class FileManagerController extends Controller
     {
         //
     }
-    
-    public function all()
+
+    public function files(Request $request)
     {
-         $userId = Auth::id();
-         $files = FileManager::where('user_id',$userId)->get();
-         return view('filemanager.index', ['files' => $files]);
-         return redirect()->route('filemanager.index');
-    }
-    
-    public function documents()
-    {
-        $userId = Auth::id();
-        $pdf = 'application/pdf';
-        $doc ='application/vnd.openxmlformats-officedocument.wordprocessingml.document';
-        $zip = 'application/zip';
-        $data = FileManager::where(function($query)use($userId){
-            $query->where('user_id', $userId);
-        })->where(function($query)use($pdf,$doc,$zip){
-            $query->where('file_ext',$pdf)
-            ->orwhere('file_ext',$doc)
-            ->orwhere('file_ext',$zip);
-        })->get();
+        $type = $request->type ? $request->type : 'all';
         
-        return view('filemanager.index', ['data' => $data]);
-        return redirect()->route('filemanager.index');
-    }
-    
-    public function audio()
-    {
-        $userId = Auth::id();
-        $wav = 'audio/wav';
-        $mp3 = 'audio/mp3';
-        $data = FileManager::where(function($query)use($userId){
-            $query->where('user_id', $userId);
-        })->where(function($query)use($wav,$mp3){
-            $query->where('file_ext',$wav)
-            ->orwhere('file_ext',$mp3);
-        })->get();
+        $files = FileManager::where('user_id', Auth::id());
         
-        return view('filemanager.index', ['data' => $data ]);
-        return redirect()->route('filemanager.index');
+        if ($type == 'image') {
+            $files = $files->whereIn('file_ext', ['jpg', 'png']);
+        }
+        elseif ($type == 'audio') {
+            $files = $files->whereIn('file_ext', ['wav',]);
+        }
+        elseif ($type == 'doc') {
+            $files = $files->whereIn('file_ext', ['pdf']);
+        }
+        else {
+            
+        }
+
+        $files = $files->get();
+
+        return response()->json($files);
     }
-    
-    public function images()
-    {
-        $userId = Auth::id();
-        $jpeg = 'image/jpeg';
-        $png = 'image/png';
-        $data = FileManager::where(function($query)use($userId){
-            $query->where('user_id', $userId);
-        })->where(function($query)use($jpeg,$png){
-            $query->where('file_ext',$jpeg)
-            ->orwhere('file_ext',$png);
-        })->get();
-        
-        return view('filemanager.index', ['data' => $data ]);    
-        return redirect()->route('filemanager.index');
-    }
-    
 }

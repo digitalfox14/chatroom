@@ -45,10 +45,10 @@
                             </div>
                         </li>
                         <!-- +++++++++++++++user profile div end ++++++++++++++++++ -->
-                        <li class="active">
+                        <li >
                             <a href="{{route('chatroom')}}">Chat view</a>
                         </li>
-                        <li class="active">
+                        <li >
                             <a href="{{route('task.index')}}">Agile board</a>
                         </li>
                         <li>

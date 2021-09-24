@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\FileManager;
 use Illuminate\Http\Request;
+use App\Models\ChatRoom;
+use App\Models\User;
+use App\Models\ShereFile;
 use Auth;
 class FileManagerController extends Controller
 {
@@ -13,9 +16,9 @@ class FileManagerController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function index()
-    {
-
-        return view('filemanager.index');
+    {   $auth = Auth::id();
+        $usersList = User::where('id','!=',$auth)->get();
+        return view('filemanager.index',['usersList' => $usersList]);
     }
 
     /**
@@ -53,11 +56,12 @@ class FileManagerController extends Controller
      */
     public function destroy(FileManager $fileManager)
     {
-        //
+        $fileManager->delete();
     }
 
     public function files(Request $request)
     {
+        
         $type = $request->type ? $request->type : 'all';
         
         $files = FileManager::where('user_id', Auth::id());
@@ -79,4 +83,25 @@ class FileManagerController extends Controller
 
         return response()->json($files);
     }
+    public function share(Request $id)
+    {
+        $shereId = $id->id;
+        $shere = FileManager::where('id',$shereId)->get();
+        return response()->json($shere);
+    }
+    
+    public function ShareFiles(Request $request)
+    {
+        
+            
+        foreach ($request->user_ids as $user_id) 
+        {
+        $shareFile = new ShereFile;
+        $shareFile->file_id = $request->fileId;
+        $shareFile->user_id = $user_id;
+        $shareFile->share_by = Auth::id();
+        $shareFile->save();
+        }
+    }
+    
 }

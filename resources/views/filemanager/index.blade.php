@@ -49,6 +49,46 @@
     </div>
 </div>
 
+
+<div id="MyPopup" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div>
+                <button type="button" class="btn btn-danger float-right mt-2 mr-2" data-dismiss="modal">
+                    Close</button>    
+            </div>
+            <div class="hr-line-dashed"></div>
+            
+            <form class="" action="{{route('filemanager.shareFiles')}}" method="post">
+                @csrf
+            <div>
+                    <input type="hidden" name="fileId" id="fileId">
+                    <input type="hidden" name="filePath" id="filePath">
+                    <input type="text" name="fileName" id="fileName" disabled class="col-12 mr-1  form-control"> 
+            </div>
+            @foreach ($usersList as $user)
+                
+                <div class="hr-line-dashed"></div>
+            <div>
+                <h3>
+                <img src="" class="ml-5" width="40px" height="40px">
+                    {{$user->name}}
+                    <input class="float-right mr-5 check" name="check" value="{{$user->id}}" type="checkbox">
+                </h3>
+            </div>
+            @endforeach
+            <div class="modal-footer">  
+                <button type="button" name="button" id="save" class="btn btn-primary">Send</button>
+            </div>
+        </form>
+        </div>
+    </div>
+</div>
+
+
+
+
 @endsection   
 @section('extra-scripts')
 <script>
@@ -60,9 +100,10 @@
             data: { type },
             success:function (resp){
                 $(resp).each(function( index,value ) {
-                    $('#'+"div-file-box").append(`<div class="file-box" id="{{$file->id??''}}">
+                    
+                    $('#'+"div-file-box").append(`<div class="file-box" id="`+value.id+`">
                     <div class="file">
-                    <a href="`+value.file_path+`">
+                    <a href="`+value.file_path+`" target="_blank">
                     <span class="corner"></span>
                     <div class="image">
                     <center><img class="img-fluid"  width="`+value.width+`"  src="`+value.thumbnail+`"></center>
@@ -72,11 +113,12 @@
                     `+value.file_name+`
                     </small>
                     </a>
-                    <button class="float-right btn btn-xs btn-white delete mr-2">&#x274C;</button>
+                    <button class="float-right btn btn-xs btn-white del mr-1">&#x274C;</button>
                     <button class="float-right btn btn-xs btn-white shere mr-1">&#10532; </button>
                     </div>
                     </div>
-                    </div>`); 
+                    </div>
+                    `); 
                 });
             }
         });
@@ -86,10 +128,8 @@
     $(document).ready(function() {
         getFiles();
         
-        
         $('#fileUpload').click(function(){
             $('#file').click();
-            
         });
 
         $('.file-control').click(function() {
@@ -98,6 +138,64 @@
             getFiles(type);
         });
         
+        $('body').on('click','.del',function() {
+            var _token = $('meta[name="csrf-token"]').attr('content');
+            console.log(_token);
+            var id = $(this).parents('.file-box').attr('id');
+            console.log(id);
+            $.ajax({
+                type: 'POST',
+                url: "/filemanager/"+id+"/delete",
+                data: {'_token':_token },
+                
+            });
+            $(this).parents('.file-box').remove();
+        });
+        
+        $('body').on('click','.shere',function() {
+            
+            var title = "Greetings";
+           var body = "Welcome to ASPSnippets.com";
+
+           $("#MyPopup .modal-title").html(title);
+           $("#MyPopup .modal-body").html(body);
+           $("#MyPopup").modal("show");
+           var id = $(this).parents('.file-box').attr('id');
+           $.ajax({
+              type:'GET',
+              url: '/filemanager/share/'+id,
+              data:{'id':id},
+              success:function(response) {
+                 
+                  $( response ).each(function( index,value ) {
+                      var fileId = value.id;
+                       var fileName = value.file_name;
+                       var filePath = value.file_path;
+                        $('#fileId').val(fileId);
+                        $('#fileName').val(fileName);
+                        $('#filePath').val(filePath);
+                        console.log(fileId);
+                   });
+              },
+           });
+        });
+            
+        $("#save").click(function(){
+            var _token = $('meta[name="csrf-token"]').attr('content');
+            var userIds = new Array();
+            $('input:checked').each(function(value) {
+                userIds.push($(this).val());
+            });
+                
+            var fileId = $('#fileId').val();
+            var filePath = $('#filePath').val();
+            $.ajax({
+                    type: 'POST',
+                    url:'/filemanager/share',
+                    data: {'_token':_token, 'fileId':fileId, 'filePath':filePath, 'user_ids': userIds },
+            });
+            
+        });   
         $('#file').change(function() {
             var formData =  new FormData(document.getElementById('file-form'));
             $.ajax({
@@ -108,9 +206,9 @@
                 processData: false,
                 contentType: false,
                 success: function (resp) {
-                    $('#'+"div-file-box").append(`<div class="file-box" id="{{$file->id??''}}">
+                    $('#'+"div-file-box").append(`<div class="file-box" id="`+resp.id+`">
                     <div class="file">
-                    <a href="`+resp.file_path+`">
+                    <a href="`+resp.file_path+`" target="_blank">
                     <span class="corner"></span>
                     <div class="image">
                     <center><img class="img-fluid" height="`+resp.height+`" width="`+resp.width+`"  src="`+resp.thumbnail+`"></center>
@@ -121,11 +219,12 @@
                     `+resp.file_name+`
                     </small>
                     </a>
-                    <button class="float-right btn btn-xs btn-white delete mr-2">&#x274C;</button>
-                    <button class="float-right btn btn-xs btn-white shere mr-1">&#10532; </button>
+                    <button class="float-right btn btn-xs btn-white del ">&#x274C;</button>
+                    <button class="float-right btn btn-xs btn-white shere ">&#10532;</button>
                     </div>
                     </div>
-                    </div>`);         
+                    </div>
+                    `);         
                 },
             });
         });       

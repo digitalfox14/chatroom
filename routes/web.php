@@ -39,9 +39,10 @@ Route::middleware('auth')->name('filemanager.')->prefix('/filemanager')->group(f
     Route::post('/store',[FileManagerController::class, 'store'])->name('store');
     Route::get('/index', [FileManagerController::class, 'index'])->name('index');
     Route::get('/files', [FileManagerController::class, 'files'])->name('files');    
-    
-    
+    Route::post('/share', [FileManagerController::class, 'ShareFiles'])->name('shareFiles');    
 });
+Route::post('/filemanager/{fileManager}/delete', [FileManagerController::class, 'destroy']);    
+Route::get('/filemanager/share/{id}', [FileManagerController::class, 'share'])->name('files');    
 
 
 

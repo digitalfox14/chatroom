@@ -73,10 +73,6 @@ class TaskController extends Controller
     public function edit(Task $task)
     {
         
-        
-        
-        
-        
     }
 
     /**
@@ -89,7 +85,6 @@ class TaskController extends Controller
     public function update(Request $request, Task $task)
     {
         $task->task = $request->newTask;
-        //echo "<pre>"; print_r($task->task); die;
         $task->save();
         
     }
@@ -111,7 +106,6 @@ class TaskController extends Controller
         
                 
             $task->task_status = $request->events;
-            //$task->order = $request->order;
             $task->save();       
     }
         

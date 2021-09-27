@@ -55,12 +55,12 @@
         <!-- Modal content-->
         <div class="modal-content">
             <div>
-                <button type="button" class="btn btn-danger float-right mt-2 mr-2" data-dismiss="modal">
+                <button type="button" class="btn btn-danger float-right mt-2 mr-2" id="close" data-dismiss="modal">
                     Close</button>    
             </div>
             <div class="hr-line-dashed"></div>
             
-            <form class="" action="{{route('filemanager.shareFiles')}}" method="post">
+            <form action="{{route('filemanager.shareFiles')}}" method="post">
                 @csrf
             <div>
                     <input type="hidden" name="fileId" id="fileId">
@@ -79,7 +79,7 @@
             </div>
             @endforeach
             <div class="modal-footer">  
-                <button type="button" name="button" id="save" class="btn btn-primary">Send</button>
+                <button type="button" name="button" id="send" class="btn btn-primary">Send</button>
             </div>
         </form>
         </div>
@@ -109,12 +109,14 @@
                     <center><img class="img-fluid"  width="`+value.width+`"  src="`+value.thumbnail+`"></center>
                     </div>
                     <div class="file-name" >
+                    <p>
                     <small>
                     `+value.file_name+`
                     </small>
                     </a>
-                    <button class="float-right btn btn-xs btn-white del mr-1">&#x274C;</button>
-                    <button class="float-right btn btn-xs btn-white shere mr-1">&#10532; </button>
+                    <button class="float-right btn btn-xs btn-white del ">&#x274C;</button>
+                    <button class="float-right btn btn-xs btn-white shere ">&#10532; </button>
+                    </p>
                     </div>
                     </div>
                     </div>
@@ -180,7 +182,7 @@
            });
         });
             
-        $("#save").click(function(){
+        $("#send").click(function(){
             var _token = $('meta[name="csrf-token"]').attr('content');
             var userIds = new Array();
             $('input:checked').each(function(value) {
@@ -194,7 +196,7 @@
                     url:'/filemanager/share',
                     data: {'_token':_token, 'fileId':fileId, 'filePath':filePath, 'user_ids': userIds },
             });
-            
+            $('#close').click();
         });   
         $('#file').change(function() {
             var formData =  new FormData(document.getElementById('file-form'));

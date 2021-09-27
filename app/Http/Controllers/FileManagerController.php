@@ -17,6 +17,12 @@ class FileManagerController extends Controller
      */
     public function index()
     {   $auth = Auth::id();
+
+        $file = FileManager::where('user_id', $auth)
+        ->orWhereHas('shares', function ($query) {
+            $query->where('user_id', Auth::id());
+        })->get();
+        
         $usersList = User::where('id','!=',$auth)->get();
         return view('filemanager.index',['usersList' => $usersList]);
     }
@@ -64,25 +70,35 @@ class FileManagerController extends Controller
         
         $type = $request->type ? $request->type : 'all';
         
-        $files = FileManager::where('user_id', Auth::id());
+        $files = FileManager::where(function ($query){
+                    $query->where('user_id', Auth::id());
+            
+                    $query->orWhereHas('shares', function($query) {
+                        $query->where('user_id', Auth::id());
+                    });
+                });
         
         if ($type == 'image') {
             $files = $files->whereIn('file_ext', ['jpg', 'png']);
         }
+
         elseif ($type == 'audio') {
-            $files = $files->whereIn('file_ext', ['wav',]);
+            $files = $files->whereIn('file_ext', ['wav']);
         }
+
         elseif ($type == 'doc') {
             $files = $files->whereIn('file_ext', ['pdf']);
         }
+
         else {
             
         }
-
+        
         $files = $files->get();
 
         return response()->json($files);
     }
+
     public function share(Request $id)
     {
         $shereId = $id->id;
@@ -93,7 +109,6 @@ class FileManagerController extends Controller
     public function ShareFiles(Request $request)
     {
         
-            
         foreach ($request->user_ids as $user_id) 
         {
         $shareFile = new ShereFile;
@@ -103,5 +118,4 @@ class FileManagerController extends Controller
         $shareFile->save();
         }
     }
-    
 }

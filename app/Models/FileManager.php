@@ -58,6 +58,14 @@ class FileManager extends Model
         }    
         return $thumbnail;
     }
-    
-    
+
+    public function shares()
+    {
+        return $this->hasMany(ShereFile::class, 'file_id', 'id');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

@@ -142,9 +142,7 @@
         
         $('body').on('click','.del',function() {
             var _token = $('meta[name="csrf-token"]').attr('content');
-            console.log(_token);
             var id = $(this).parents('.file-box').attr('id');
-            console.log(id);
             $.ajax({
                 type: 'POST',
                 url: "/filemanager/"+id+"/delete",
@@ -176,7 +174,6 @@
                         $('#fileId').val(fileId);
                         $('#fileName').val(fileName);
                         $('#filePath').val(filePath);
-                        console.log(fileId);
                    });
               },
            });
